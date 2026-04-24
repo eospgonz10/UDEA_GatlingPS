@@ -15,7 +15,7 @@ class TransferTest extends Simulation{
     // 2 Scenario Definition
   val scn = scenario("Transfer Test").
     exec(http("Transfer Request")
-         .post(s"/transfer/${fromAccountId}/${toAccountId}/${amount}")
+        .post("/transfer?fromAccountId=${fromAccountId}&toAccountId=${toAccountId}&amount=${amount}")
          .check(status.is(200))
          )
 
