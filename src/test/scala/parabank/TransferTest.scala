@@ -17,7 +17,7 @@ class TransferTest extends Simulation{
   // 3 Scenario Definition
   val transferWarmupScenario = scenario("Transfer Warmup")
     .feed(transferFeeder)
-    .exec(http("transfer-warmup-request")
+    .exec(http("transfer-request")
       .post("/transfer")
       .queryParam("fromAccountId", "${fromAccountId}")
       .queryParam("toAccountId", "${toAccountId}")
@@ -28,7 +28,7 @@ class TransferTest extends Simulation{
 
   val transferStressScenario = scenario("Transfer Stress")
     .feed(transferFeeder)
-    .exec(http("transfer-request")
+    .exec(http("transfer-stress-request")
       .post("/transfer")
       .queryParam("fromAccountId", "${fromAccountId}")
       .queryParam("toAccountId", "${toAccountId}")
@@ -37,19 +37,22 @@ class TransferTest extends Simulation{
       .check(regex("(?i)(successfully transferred|transferred|in)").exists)
     )
 
+  val transferWarmupPopulation = transferWarmupScenario.inject(
+    rampUsersPerSec(10).to(50).during(transferRampUpDuration)
+  )
+
+  val transferStressPopulation = transferStressScenario.inject(
+    constantUsersPerSec(transferTargetTps).during(transferStressDuration)
+  )
+
   // 4 Load Scenario
   setUp(
-    transferWarmupScenario.inject(
-      rampUsersPerSec(10).to(50).during(transferRampUpDuration)
-    ).andThen(
-      transferStressScenario.inject(
-        constantUsersPerSec(transferTargetTps).during(transferStressDuration)
-      )
-    )
+    transferWarmupPopulation.andThen(transferStressPopulation)
   ).protocols(httpConf)
     .assertions(
       global.requestsPerSec.gte(transferTargetTps),
       global.failedRequests.percent.is(0),
-      details("transfer-request").successfulRequests.percent.is(100)
+      details("transfer-request").successfulRequests.percent.is(100),
+      details("transfer-stress-request").successfulRequests.percent.is(100)
     )
 }
