@@ -1,0 +1,27 @@
+{
+  "simulation": "parabank.AccountStatementTest",
+  "simulationId": "accountstatementtest",
+  "start": 1777157044010,
+  "description": "",
+  "scenarios": ["Account Statement Load"],
+  "assertions": [
+{
+  "path": "account-statement",
+  "target": "95th percentile of response time",
+  "condition": "is less than or equal to",
+  "expectedValues": [3000.0],
+  "result": true,
+  "message": "account-statement: 95th percentile of response time is less than or equal to 3000.0",
+  "actualValue": [771.0]
+},
+{
+  "path": "Global",
+  "target": "percentage of failed events",
+  "condition": "is less than or equal to",
+  "expectedValues": [1.0],
+  "result": true,
+  "message": "Global: percentage of failed events is less than or equal to 1.0",
+  "actualValue": [0.0]
+}
+  ]
+}

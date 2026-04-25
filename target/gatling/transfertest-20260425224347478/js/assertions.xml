@@ -1,0 +1,11 @@
+<testsuite name="parabank.TransferTest" tests="3" errors="0" failures="0" time="0">
+<testcase name="Global: count of all events is 150.0" status="true" time="0">
+  <system-out>Global: count of all events is 150.0</system-out>
+</testcase>
+<testcase name="Global: percentage of failed events is 0.0" status="true" time="0">
+  <system-out>Global: percentage of failed events is 0.0</system-out>
+</testcase>
+<testcase name="transfer-request: percentage of successful events is 100.0" status="true" time="0">
+  <system-out>transfer-request: percentage of successful events is 100.0</system-out>
+</testcase>
+</testsuite>

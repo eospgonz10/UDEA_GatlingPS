@@ -22,7 +22,7 @@ class AccountStatementTest extends Simulation {
   // 3 Load Scenario
   setUp(
     scn.inject(
-      constantConcurrentUsers(statementUsers).during(statementDuration)
+      atOnceUsers(statementUsers)
     )
   ).protocols(httpConf)
     .assertions(

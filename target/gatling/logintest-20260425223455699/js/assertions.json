@@ -1,0 +1,27 @@
+{
+  "simulation": "parabank.LoginTest",
+  "simulationId": "logintest",
+  "start": 1777156495699,
+  "description": "",
+  "scenarios": ["Login - 100 Concurrentes"],
+  "assertions": [
+{
+  "path": "login-normal",
+  "target": "95th percentile of response time",
+  "condition": "is less than or equal to",
+  "expectedValues": [4000.0],
+  "result": true,
+  "message": "login-normal: 95th percentile of response time is less than or equal to 4000.0",
+  "actualValue": [3690.0]
+},
+{
+  "path": "Global",
+  "target": "percentage of failed events",
+  "condition": "is",
+  "expectedValues": [0.0],
+  "result": true,
+  "message": "Global: percentage of failed events is 0.0",
+  "actualValue": [0.0]
+}
+  ]
+}

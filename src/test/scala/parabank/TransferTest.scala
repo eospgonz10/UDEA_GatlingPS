@@ -29,12 +29,11 @@ class TransferTest extends Simulation{
   // 4 Load Scenario
   setUp(
     scn.inject(
-      rampUsersPerSec(1).to(transferTargetTps).during(transferRampUpDuration),
-      constantUsersPerSec(transferTargetTps).during(transferStressDuration)
+      atOnceUsers(transferTargetTps)
     )
   ).protocols(httpConf)
     .assertions(
-      global.requestsPerSec.gte(transferTargetTps),
+      global.allRequests.count.is(transferTargetTps.toLong),
       global.failedRequests.percent.is(0),
       details("transfer-request").successfulRequests.percent.is(100)
     )

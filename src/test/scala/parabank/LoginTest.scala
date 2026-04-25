@@ -12,13 +12,13 @@ class LoginTest extends Simulation{
     .contentTypeHeader("application/json")
 
   // 2 Scenario Definition
-  val loginNormalScenario = scenario("Login - Carga Normal")
+  val loginNormalScenario = scenario("Login - 100 Concurrentes")
     .exec(http("login-normal")
       .get(s"/login/$username/$password")
       .check(status.is(200))
     )
 
-  val loginPeakScenario = scenario("Login - Carga Pico")
+  val loginPeakScenario = scenario("Login - 200 Concurrentes")
     .exec(http("login-peak")
       .get(s"/login/$username/$password")
       .check(status.is(200))
@@ -27,10 +27,11 @@ class LoginTest extends Simulation{
   // 3 Load Scenario
   setUp(
     loginNormalScenario.inject(
-      constantConcurrentUsers(loginNormalUsers).during(loginNormalDuration)
+      atOnceUsers(loginNormalUsers)
     ),
     loginPeakScenario.inject(
-      constantConcurrentUsers(loginPeakUsers).during(loginPeakDuration)
+      nothingFor(loginNormalDuration),
+      atOnceUsers(loginPeakUsers)
     )
   ).protocols(httpConf)
     .assertions(
