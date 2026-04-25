@@ -24,17 +24,14 @@ class LoginTest extends Simulation{
       .check(status.is(200))
     )
 
-  val loginNormalPopulation = loginNormalScenario.inject(
-    constantConcurrentUsers(loginNormalUsers).during(loginNormalDuration)
-  )
-
-  val loginPeakPopulation = loginPeakScenario.inject(
-    constantConcurrentUsers(loginPeakUsers).during(loginPeakDuration)
-  )
-
   // 3 Load Scenario
   setUp(
-    loginNormalPopulation.andThen(loginPeakPopulation)
+    loginNormalScenario.inject(
+      constantConcurrentUsers(loginNormalUsers).during(loginNormalDuration)
+    ),
+    loginPeakScenario.inject(
+      constantConcurrentUsers(loginPeakUsers).during(loginPeakDuration)
+    )
   ).protocols(httpConf)
     .assertions(
       details("login-normal").responseTime.percentile3.lte(loginP95NormalMs),
