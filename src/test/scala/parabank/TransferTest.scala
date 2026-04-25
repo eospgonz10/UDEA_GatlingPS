@@ -15,7 +15,18 @@ class TransferTest extends Simulation{
   val transferFeeder = csv("transfer-feeder.csv").circular
 
   // 3 Scenario Definition
-  val scn = scenario("Transfer Test")
+  val transferWarmupScenario = scenario("Transfer Warmup")
+    .feed(transferFeeder)
+    .exec(http("transfer-warmup-request")
+      .post("/transfer")
+      .queryParam("fromAccountId", "${fromAccountId}")
+      .queryParam("toAccountId", "${toAccountId}")
+      .queryParam("amount", "${amount}")
+      .check(status.is(200))
+      .check(regex("(?i)(successfully transferred|transferred|in)").exists)
+    )
+
+  val transferStressScenario = scenario("Transfer Stress")
     .feed(transferFeeder)
     .exec(http("transfer-request")
       .post("/transfer")
@@ -28,8 +39,11 @@ class TransferTest extends Simulation{
 
   // 4 Load Scenario
   setUp(
-    scn.inject(
-      rampUsersPerSec(50).to(transferTargetTps).during(transferRampUpDuration),
+    transferWarmupScenario.inject(
+      rampUsersPerSec(10).to(50).during(transferRampUpDuration)
+    ).protocols(httpConf)
+  ).andThen(
+    transferStressScenario.inject(
       constantUsersPerSec(transferTargetTps).during(transferStressDuration)
     )
   ).protocols(httpConf)

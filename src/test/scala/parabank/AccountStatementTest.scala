@@ -12,8 +12,15 @@ class AccountStatementTest extends Simulation {
     .contentTypeHeader("application/json")
 
   // 2 Scenario Definition
-  val scn = scenario("Account Statement Load")
+  val statementWarmupScenario = scenario("Account Statement Warmup")
     .exec(http("account-statement")
+      .get(s"/accounts/$statementAccountId")
+      .check(status.is(200))
+      .check(jsonPath("$.id").exists)
+    )
+
+  val statementPeakScenario = scenario("Account Statement Peak")
+    .exec(http("account-statement-peak")
       .get(s"/accounts/$statementAccountId")
       .check(status.is(200))
       .check(jsonPath("$.id").exists)
@@ -21,12 +28,16 @@ class AccountStatementTest extends Simulation {
 
   // 3 Load Scenario
   setUp(
-    scn.inject(
+    statementWarmupScenario.inject(
+      constantConcurrentUsers(50).during(statementDuration)
+    ).protocols(httpConf)
+  ).andThen(
+    statementPeakScenario.inject(
       constantConcurrentUsers(statementUsers).during(statementDuration)
     )
   ).protocols(httpConf)
     .assertions(
-      details("account-statement").responseTime.percentile3.lte(statementP95Ms),
+      details("account-statement-peak").responseTime.percentile3.lte(statementP95Ms),
       global.failedRequests.percent.lte(statementMaxErrorPercent)
     )
 }

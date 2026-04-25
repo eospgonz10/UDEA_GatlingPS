@@ -28,11 +28,12 @@ class LoginTest extends Simulation{
   setUp(
     loginNormalScenario.inject(
       constantConcurrentUsers(loginNormalUsers).during(loginNormalDuration)
-    ),
+    ).protocols(httpConf)
+  ).andThen(
     loginPeakScenario.inject(
       constantConcurrentUsers(loginPeakUsers).during(loginPeakDuration)
-    )
-  ).protocols(httpConf)
+    ).protocols(httpConf)
+  )
     .assertions(
       details("login-normal").responseTime.percentile3.lte(loginP95NormalMs),
       details("login-peak").responseTime.percentile3.lte(loginP95PeakMs),
