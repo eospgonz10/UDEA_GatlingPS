@@ -9,18 +9,33 @@ class TransferTest extends Simulation{
   // 1 Http Conf
   val httpConf = http.baseUrl(url)
     .acceptHeader("application/json")
-    //Verificar de forma general para todas las solicitudes
-    .check(status.is(200))
+    .contentTypeHeader("application/json")
 
-    // 2 Scenario Definition
-  val scn = scenario("Transfer Test").
-    exec(http("Transfer Request")
-        .post(s"/transfer?fromAccountId=$fromAccountId&toAccountId=$toAccountId&amount=$amount")
-         .check(status.is(200))
-         )
+  // 2 CSV Feeder
+  val transferFeeder = csv("transfer-feeder.csv").circular
 
-    // 3 Load Scenario
+  // 3 Scenario Definition
+  val scn = scenario("Transfer Test")
+    .feed(transferFeeder)
+    .exec(http("transfer-request")
+      .post("/transfer")
+      .queryParam("fromAccountId", "${fromAccountId}")
+      .queryParam("toAccountId", "${toAccountId}")
+      .queryParam("amount", "${amount}")
+      .check(status.is(200))
+      .check(regex("(?i)(successfully transferred|transferred|in)").exists)
+    )
+
+  // 4 Load Scenario
   setUp(
-    scn.inject(rampUsersPerSec(5).to(15).during(30))
-  ).protocols(httpConf);
+    scn.inject(
+      rampUsersPerSec(50).to(transferTargetTps).during(transferRampUpDuration),
+      constantUsersPerSec(transferTargetTps).during(transferStressDuration)
+    )
+  ).protocols(httpConf)
+    .assertions(
+      global.requestsPerSec.gte(transferTargetTps),
+      global.failedRequests.percent.is(0),
+      details("transfer-request").successfulRequests.percent.is(100)
+    )
 }
