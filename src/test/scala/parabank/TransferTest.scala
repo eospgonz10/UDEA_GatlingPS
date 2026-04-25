@@ -41,10 +41,10 @@ class TransferTest extends Simulation{
   setUp(
     transferWarmupScenario.inject(
       rampUsersPerSec(10).to(50).during(transferRampUpDuration)
-    ).protocols(httpConf)
-  ).andThen(
-    transferStressScenario.inject(
-      constantUsersPerSec(transferTargetTps).during(transferStressDuration)
+    ).andThen(
+      transferStressScenario.inject(
+        constantUsersPerSec(transferTargetTps).during(transferStressDuration)
+      )
     )
   ).protocols(httpConf)
     .assertions(

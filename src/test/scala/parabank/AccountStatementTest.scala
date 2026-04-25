@@ -30,10 +30,10 @@ class AccountStatementTest extends Simulation {
   setUp(
     statementWarmupScenario.inject(
       constantConcurrentUsers(50).during(statementDuration)
-    ).protocols(httpConf)
-  ).andThen(
-    statementPeakScenario.inject(
-      constantConcurrentUsers(statementUsers).during(statementDuration)
+    ).andThen(
+      statementPeakScenario.inject(
+        constantConcurrentUsers(statementUsers).during(statementDuration)
+      )
     )
   ).protocols(httpConf)
     .assertions(
