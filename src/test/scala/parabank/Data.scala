@@ -6,8 +6,8 @@ object Data{
     val url = "https://parabank.parasoft.com/parabank/services/bank"
     val username = "john"
     val password = "demo"
-    val fromAccountId = "15120"
-    val toAccountId = "15231"
+    val fromAccountId = "13122"
+    val toAccountId = "13344"
     val amount = "1"
 
     // Historia 1: Login
