@@ -29,7 +29,7 @@ class TransferTest extends Simulation{
   // 4 Load Scenario
   setUp(
     scn.inject(
-      atOnceUsers(transferTargetTps)
+      constantUsersPerSec(transferTargetTps)
     )
   ).protocols(httpConf)
     .assertions(
