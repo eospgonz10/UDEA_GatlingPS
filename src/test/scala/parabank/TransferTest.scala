@@ -26,14 +26,17 @@ class TransferTest extends Simulation{
       .check(regex("(?i)(successfully transferred|transferred|in)").exists)
     )
 
+  private val expectedTransferCount = transferTargetTps.toLong * transferStressDuration.toSeconds
+
   // 4 Load Scenario
   setUp(
     scn.inject(
-      constantUsersPerSec(transferTargetTps)
+      rampUsersPerSec(1).to(transferTargetTps).during(transferRampUpDuration),
+      constantUsersPerSec(transferTargetTps).during(transferStressDuration)
     )
   ).protocols(httpConf)
     .assertions(
-      global.allRequests.count.is(transferTargetTps.toLong),
+      global.allRequests.count.gte(expectedTransferCount),
       global.failedRequests.percent.is(0),
       details("transfer-request").successfulRequests.percent.is(100)
     )
